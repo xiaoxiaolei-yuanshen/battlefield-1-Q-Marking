@@ -1,7 +1,7 @@
 # 模组功能列表
 
 我的B站：
-https://space.bilibili.com/1157669161?
+https://space.bilibili.com/1157669161
 
 1. 实体标记系统
 - **按键标记**：使用左Alt键标记实体

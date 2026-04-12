@@ -1,0 +1,21 @@
+{
+  "key.categories.bfq": "战地1 Q",
+  "key.bfq.mark_enemy": "标记敌人",
+  
+  "team.bfq.pg": "苹果",
+  "team.bfq.ny": "奶油",
+  "team.bfq.cl": "查理",
+  "team.bfq.df": "达夫",
+  "team.bfq.ed": "爱德华",
+  "team.bfq.fd": "弗莱迪",
+  "team.bfq.gq": "乔治",
+  "team.bfq.hl": "哈利",
+  "team.bfq.mq": "墨水强尼",
+  "team.bfq.gw": "国王",
+  "team.bfq.ld": "伦敦",
+  
+  "class.bfq.assault": "突击兵",
+  "class.bfq.medic": "医疗兵",
+  "class.bfq.recon": "侦察兵",
+  "class.bfq.support": "支援兵"
+}

@@ -1,0 +1,167 @@
+{
+  "mark.assault_a": {
+    "sounds": [
+      "bfq:mark/assault_a"
+    ]
+  },
+  "mark.assault_b": {
+    "sounds": [
+      "bfq:mark/assault_b"
+    ]
+  },
+  "mark.assault_c": {
+    "sounds": [
+      "bfq:mark/assault_c"
+    ]
+  },
+  "mark.medic_a": {
+    "sounds": [
+      "bfq:mark/medic_a"
+    ]
+  },
+  "mark.medic_b": {
+    "sounds": [
+      "bfq:mark/medic_b"
+    ]
+  },
+  "mark.medic_c": {
+    "sounds": [
+      "bfq:mark/medic_c"
+    ]
+  },
+  "mark.medic_easter": {
+    "sounds": [
+      "bfq:mark/medic_easter"
+    ]
+  },
+  "mark.support_a": {
+    "sounds": [
+      "bfq:mark/support_a"
+    ]
+  },
+  "mark.support_b": {
+    "sounds": [
+      "bfq:mark/support_b"
+    ]
+  },
+  "mark.support_c": {
+    "sounds": [
+      "bfq:mark/support_c"
+    ]
+  },
+  "mark.recon_a": {
+    "sounds": [
+      "bfq:mark/recon_a"
+    ]
+  },
+  "mark.recon_b": {
+    "sounds": [
+      "bfq:mark/recon_b"
+    ]
+  },
+  "mark.recon_c": {
+    "sounds": [
+      "bfq:mark/recon_c"
+    ]
+  },
+  "mark.bomber_a": {
+    "sounds": [
+      "bfq:mark/bomber_a"
+    ]
+  },
+  "mark.bomber_b": {
+    "sounds": [
+      "bfq:mark/bomber_b"
+    ]
+  },
+  "mark.bomber_c": {
+    "sounds": [
+      "bfq:mark/bomber_c"
+    ]
+  },
+  "mark.plane_a": {
+    "sounds": [
+      "bfq:mark/plane_a"
+    ]
+  },
+  "mark.plane_b": {
+    "sounds": [
+      "bfq:mark/plane_b"
+    ]
+  },
+  "mark.plane_c": {
+    "sounds": [
+      "bfq:mark/plane_c"
+    ]
+  },
+  "mark.raider_a": {
+    "sounds": [
+      "bfq:mark/raider_a"
+    ]
+  },
+  "mark.raider_b": {
+    "sounds": [
+      "bfq:mark/raider_b"
+    ]
+  },
+  "mark.raider_c": {
+    "sounds": [
+      "bfq:mark/raider_c"
+    ]
+  },
+  "mark.flamethrower_a": {
+    "sounds": [
+      "bfq:mark/flamethrower_a"
+    ]
+  },
+  "mark.flamethrower_b": {
+    "sounds": [
+      "bfq:mark/flamethrower_b"
+    ]
+  },
+  "mark.flamethrower_c": {
+    "sounds": [
+      "bfq:mark/flamethrower_c"
+    ]
+  },
+  "mark.sentry_a": {
+    "sounds": [
+      "bfq:mark/sentry_a"
+    ]
+  },
+  "mark.sentry_b": {
+    "sounds": [
+      "bfq:mark/sentry_b"
+    ]
+  },
+  "mark.sentry_c": {
+    "sounds": [
+      "bfq:mark/sentry_c"
+    ]
+  },
+  "mark.kill": {
+    "sounds": [
+      "bfq:mark/kill"
+    ]
+  },
+  "mark.headshot_kill": {
+    "sounds": [
+      "bfq:mark/headshot_kill"
+    ]
+  },
+  "mark.support_easter": {
+    "sounds": [
+      "bfq:mark/support_easter"
+    ]
+  },
+  "mark.trench_fighter": {
+    "sounds": [
+      "bfq:mark/trench_fighter"
+    ]
+  },
+  "mark.invader": {
+    "sounds": [
+      "bfq:mark/invader"
+    ]
+  }
+}

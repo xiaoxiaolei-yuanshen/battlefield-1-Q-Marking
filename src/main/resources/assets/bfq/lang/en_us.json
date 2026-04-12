@@ -1,0 +1,21 @@
+{
+  "key.categories.bfq": "Battlefield 1 Q",
+  "key.bfq.mark_enemy": "Mark Enemy",
+  
+  "team.bfq.pg": "Apple",
+  "team.bfq.ny": "Cream",
+  "team.bfq.cl": "Charlie",
+  "team.bfq.df": "Duff",
+  "team.bfq.ed": "Edward",
+  "team.bfq.fd": "Freddy",
+  "team.bfq.gq": "George",
+  "team.bfq.hl": "Harry",
+  "team.bfq.mq": "Ink Johnny",
+  "team.bfq.gw": "King",
+  "team.bfq.ld": "London",
+  
+  "class.bfq.assault": "Assault",
+  "class.bfq.medic": "Medic",
+  "class.bfq.recon": "Recon",
+  "class.bfq.support": "Support"
+}

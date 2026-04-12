@@ -1,46 +1,62 @@
+## 模组功能列表
 
-Source installation information for modders
--------------------------------------------
-This code follows the Minecraft Forge installation methodology. It will apply
-some small patches to the vanilla MCP source code, giving you and it access 
-to some of the data and functions you need to build a successful mod.
+### 1. 实体标记系统
+- **按键标记**：使用左Alt键标记实体
+- **多种标记类型**：突击兵、医疗兵、侦察兵、支援兵、掠夺者、喷火兵、哨兵、飞行员、战壕奇兵、入侵者等
+- **友军/敌军区分**：自动识别友军和敌军，显示不同的标记图标
+- **标记持续时间**：标记持续15秒后自动消失
+- **标记冷却**：0.2秒的标记冷却时间
 
-Note also that the patches are built against "un-renamed" MCP source code (aka
-SRG Names) - this means that you will not be able to read them directly against
-normal code.
+### 2. 音效系统
+- **兵种音效**：每个兵种都有独特的标记音效
+- **彩蛋音效**：10%概率触发彩蛋音效，所有玩家都能听到
+- **击杀音效**：击杀被标记的敌人时播放击杀音效
+- **本地/网络区分**：普通标记音效仅本地播放，彩蛋音效网络广播
 
-Setup Process:
-==============================
+### 3. 小队系统
+- **Minecraft队伍集成**：支持Minecraft原生队伍系统
+- **xd命令系统**：
+  - `/xd add`：创建小队
+  - `/xd join <队伍名>`：加入小队
+  - `/xd leave`：离开小队
+  - `/xd list`：列出所有小队
+- **小队名称**：苹果、奶油、查理、达夫、爱德华、弗莱迪、乔治、哈利、墨水强尼、国王、伦敦
+- **小队容量**：每队最多5人
 
-Step 1: Open your command-line and browse to the folder where you extracted the zip file.
+### 4. 职业系统
+- **zy命令系统**：`/zy <职业名>` 设置玩家职业
+- **可选职业**：突击兵、医疗兵、侦察兵、支援兵
+- **职业显示**：在队友头顶显示职业标记
+- **职业同步**：多人游戏中职业信息自动同步
 
-Step 2: You're left with a choice.
-If you prefer to use Eclipse:
-1. Run the following command: `./gradlew genEclipseRuns`
-2. Open Eclipse, Import > Existing Gradle Project > Select Folder 
-   or run `gradlew eclipse` to generate the project.
+### 5. UI提示系统
+- **哨兵装备提示**：标记铁傀儡或雪傀儡时显示"已發現哨兵裝備"
+- **喷火兵装备提示**：标记烈焰人时显示"已發現噴火兵裝備"
+- **战壕奇兵装备提示**：标记箱子矿车时显示"已發現戰壕奇兵裝備"
+- **入侵者装备提示**：标记漏斗矿车时显示"已發現入侵者裝備"
+- **淡入淡出效果**：0.45秒的淡入淡出动画
+- **持续时间**：UI提示持续5秒
 
-If you prefer to use IntelliJ:
-1. Open IDEA, and import project.
-2. Select your build.gradle file and have it import.
-3. Run the following command: `./gradlew genIntellijRuns`
-4. Refresh the Gradle Project in IDEA if required.
+### 6. 渲染系统
+- **实体标记渲染**：在实体头顶显示彩色标记图标
+- **水中可见性**：标记在水中也能正常显示
+- **距离缩放**：标记大小根据距离自动调整
+- **特殊实体高度**：恶魂、远古守卫者、嗅探兽、劫掠兽等特殊实体的标记高度单独调整
+- **第一人称手臂渲染**：标记时播放手臂动画
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can 
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-(this does not affect your code) and then start the process again.
+### 7. 多人游戏支持
+- **网络同步**：标记、职业、小队信息在多人游戏中自动同步
+- **GD656击杀图标兼容**：检测到GD656击杀图标模组时，自动禁用击杀音效
+- **Vanilla服务器兼容**：在未安装模组的服务器上也能正常显示标记
 
-Mapping Names:
-=============================
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license, if you do not agree with it you can change your mapping names to other crowdsourced names in your 
-build.gradle. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
+### 8. 特殊功能
+- **矿车标记**：支持标记箱子矿车和漏斗矿车
+- **友好生物识别**：自动识别鱼、悦灵、海豚、鹦鹉、蝌蚪、流浪商人等为友好生物
+- **敌对生物识别**：河豚、蠹虫等为敌对生物
+- **玩家重生/传送清理**：玩家重生或传送时自动清理所有标记数据，避免音效混乱
 
-Additional Resources: 
-=========================
-Community Documentation: https://docs.minecraftforge.net/en/1.20.1/gettingstarted/
-LexManos' Install Video: https://youtu.be/8VEdtQLuLO0
-Forge Forums: https://forums.minecraftforge.net/
-Forge Discord: https://discord.minecraftforge.net/
+---
+
+**作者信息**：
+- 关注b站UID:545778318谢谢喵
+- 关注b站UID:1157669161谢谢喵

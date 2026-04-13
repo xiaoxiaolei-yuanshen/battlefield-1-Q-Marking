@@ -3,7 +3,7 @@
 我的B站：
 https://space.bilibili.com/1157669161
 
-![bj](https://github.com/xiaoxiaolei-yuanshen/battlefield-1-Q-Marking/blob/master/%E6%A0%87%E8%AE%B01.gif)
+![image](https://github.com/xiaoxiaolei-yuanshen/battlefield-1-Q-Marking/blob/master/%E6%A0%87%E8%AE%B01.gif)
 
 1. 实体标记系统
 - **按键标记**：使用左Alt键标记实体

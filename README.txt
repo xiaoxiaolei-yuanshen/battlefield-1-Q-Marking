@@ -3,6 +3,8 @@
 我的B站：
 https://space.bilibili.com/1157669161
 
+![bj](https://github.com/xiaoxiaolei-yuanshen/battlefield-1-Q-Marking/blob/master/%E6%A0%87%E8%AE%B01.gif)
+
 1. 实体标记系统
 - **按键标记**：使用左Alt键标记实体
 - **多种标记类型**：突击兵、医疗兵、侦察兵、支援兵、掠夺者、喷火兵、哨兵、飞行员、战壕奇兵、入侵者等

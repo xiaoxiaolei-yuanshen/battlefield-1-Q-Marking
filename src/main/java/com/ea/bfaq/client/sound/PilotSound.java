@@ -19,6 +19,7 @@ public class PilotSound
         SoundEvents.BOMBER_B.get(),
         SoundEvents.BOMBER_C.get()
     };
+    private static final SoundEvent BOMBER_EASTER_SOUND = SoundEvents.BOMBER_EASTER.get();
     
     public static void play(boolean isBomber)
     {
@@ -34,7 +35,23 @@ public class PilotSound
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
             net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            1.0F, 1.0F, true
+        );
+    }
+    
+    public static void playEaster()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null)
+        {
+            return;
+        }
+        
+        mc.level.playLocalSound(
+            mc.player.getX(), mc.player.getY(), mc.player.getZ(),
+            BOMBER_EASTER_SOUND,
+            net.minecraft.sounds.SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
 }

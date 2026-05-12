@@ -14,6 +14,7 @@ public class ReconSound
         SoundEvents.RECON_B.get(),
         SoundEvents.RECON_C.get()
     };
+    private static final SoundEvent EASTER_SOUND = SoundEvents.RECON_EASTER.get();
     
     public static void play()
     {
@@ -28,7 +29,23 @@ public class ReconSound
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
             net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            1.0F, 1.0F, true
+        );
+    }
+    
+    public static void playEaster()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null)
+        {
+            return;
+        }
+        
+        mc.level.playLocalSound(
+            mc.player.getX(), mc.player.getY(), mc.player.getZ(),
+            EASTER_SOUND,
+            net.minecraft.sounds.SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
 }

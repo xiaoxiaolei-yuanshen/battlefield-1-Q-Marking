@@ -148,11 +148,15 @@ public class MarkKeyHandler
         
         if (entityName.contains("chest_minecart"))
         {
-            return MarkData.MarkType.TRENCH_FIGHTER;
+            return MarkData.MarkType.TRENCH_FIGHTER_EQUIPMENT;
         }
         else if (entityName.contains("hopper_minecart"))
         {
-            return MarkData.MarkType.INVADER;
+            return MarkData.MarkType.INVADER_EQUIPMENT;
+        }
+        else if (entityName.contains("piglin_brute") || entityName.contains("vindicator"))
+        {
+            return MarkData.MarkType.TRENCH_FIGHTER;
         }
         
         if (entityName.contains("skeleton_horse") || entityName.contains("zombie_horse"))
@@ -407,7 +411,15 @@ public class MarkKeyHandler
         switch (markType)
         {
             case ASSAULT:
-                com.ea.bfaq.client.sound.AssaultSound.play();
+                if (new java.util.Random().nextInt(100) < 10)
+                {
+                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("assault_easter"));
+                    com.ea.bfaq.client.sound.AssaultSound.playEaster();
+                }
+                else
+                {
+                    com.ea.bfaq.client.sound.AssaultSound.play();
+                }
                 break;
             case MEDIC:
                 // 10%概率播放彩蛋音效
@@ -440,7 +452,15 @@ public class MarkKeyHandler
                 }
                 break;
             case RECON:
-                com.ea.bfaq.client.sound.ReconSound.play();
+                if (new java.util.Random().nextInt(100) < 10)
+                {
+                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("recon_easter"));
+                    com.ea.bfaq.client.sound.ReconSound.playEaster();
+                }
+                else
+                {
+                    com.ea.bfaq.client.sound.ReconSound.play();
+                }
                 break;
             case RAIDER:
                 com.ea.bfaq.client.sound.RaiderSound.play();
@@ -453,12 +473,23 @@ public class MarkKeyHandler
                 break;
             case PILOT:
                 boolean isBomber = entity instanceof EnderDragon || entity instanceof WitherBoss;
-                com.ea.bfaq.client.sound.PilotSound.play(isBomber);
+                if (isBomber && new java.util.Random().nextInt(100) < 10)
+                {
+                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("bomber_easter"));
+                    com.ea.bfaq.client.sound.PilotSound.playEaster();
+                }
+                else
+                {
+                    com.ea.bfaq.client.sound.PilotSound.play(isBomber);
+                }
                 break;
             case TRENCH_FIGHTER:
+                com.ea.bfaq.client.sound.RaiderSound.play();
+                break;
+            case TRENCH_FIGHTER_EQUIPMENT:
                 com.ea.bfaq.client.sound.TrenchFighterSound.play();
                 break;
-            case INVADER:
+            case INVADER_EQUIPMENT:
                 com.ea.bfaq.client.sound.InvaderSound.play();
                 break;
         }
@@ -472,11 +503,11 @@ public class MarkKeyHandler
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowUI(true);
         }
-        else if (markType == MarkData.MarkType.TRENCH_FIGHTER && entity.getType().toString().toLowerCase().contains("chest_minecart"))
+        else if (markType == MarkData.MarkType.TRENCH_FIGHTER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("chest_minecart"))
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowMinecartUI(true);
         }
-        else if (markType == MarkData.MarkType.INVADER && entity.getType().toString().toLowerCase().contains("hopper_minecart"))
+        else if (markType == MarkData.MarkType.INVADER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("hopper_minecart"))
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowHopperUI(true);
         }

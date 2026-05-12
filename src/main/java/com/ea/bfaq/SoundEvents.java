@@ -15,6 +15,7 @@ public class SoundEvents
     public static final RegistryObject<SoundEvent> ASSAULT_A = registerSound("mark.assault_a");
     public static final RegistryObject<SoundEvent> ASSAULT_B = registerSound("mark.assault_b");
     public static final RegistryObject<SoundEvent> ASSAULT_C = registerSound("mark.assault_c");
+    public static final RegistryObject<SoundEvent> ASSAULT_EASTER = registerSound("mark.assault_easter");
     public static final RegistryObject<SoundEvent> MEDIC_A = registerSound("mark.medic_a");
     public static final RegistryObject<SoundEvent> MEDIC_B = registerSound("mark.medic_b");
     public static final RegistryObject<SoundEvent> MEDIC_C = registerSound("mark.medic_c");
@@ -25,9 +26,11 @@ public class SoundEvents
     public static final RegistryObject<SoundEvent> RECON_A = registerSound("mark.recon_a");
     public static final RegistryObject<SoundEvent> RECON_B = registerSound("mark.recon_b");
     public static final RegistryObject<SoundEvent> RECON_C = registerSound("mark.recon_c");
+    public static final RegistryObject<SoundEvent> RECON_EASTER = registerSound("mark.recon_easter");
     public static final RegistryObject<SoundEvent> BOMBER_A = registerSound("mark.bomber_a");
     public static final RegistryObject<SoundEvent> BOMBER_B = registerSound("mark.bomber_b");
     public static final RegistryObject<SoundEvent> BOMBER_C = registerSound("mark.bomber_c");
+    public static final RegistryObject<SoundEvent> BOMBER_EASTER = registerSound("mark.bomber_easter");
     public static final RegistryObject<SoundEvent> PLANE_A = registerSound("mark.plane_a");
     public static final RegistryObject<SoundEvent> PLANE_B = registerSound("mark.plane_b");
     public static final RegistryObject<SoundEvent> PLANE_C = registerSound("mark.plane_c");

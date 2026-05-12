@@ -51,7 +51,9 @@ public class MarkData
         FLAMETHROWER("flamethrower"),
         SENTRY("sentry"),
         TRENCH_FIGHTER("trench_fighter"),
-        INVADER("invader");
+        INVADER("invader"),
+        TRENCH_FIGHTER_EQUIPMENT("trench_fighter_equipment"),
+        INVADER_EQUIPMENT("invader_equipment");
 
         private final String textureName;
 

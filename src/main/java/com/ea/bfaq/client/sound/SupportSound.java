@@ -1,20 +1,19 @@
 package com.ea.bfaq.client.sound;
 
-import com.ea.bfaq.SoundEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SupportSound
 {
-    private static final Random RANDOM = new Random();
-    private static final SoundEvent[] SOUNDS = {
-        SoundEvents.SUPPORT_A.get(),
-        SoundEvents.SUPPORT_B.get(),
-        SoundEvents.SUPPORT_C.get()
-    };
-    
+    private static final SoundEvent SUPPORT_A = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.support_a"));
+    private static final SoundEvent SUPPORT_B = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.support_b"));
+    private static final SoundEvent SUPPORT_C = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.support_c"));
+    private static final SoundEvent SUPPORT_EASTER = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.support_easter"));
+
     public static void play()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -22,17 +21,17 @@ public class SupportSound
         {
             return;
         }
-        
-        // 普通音效只在本地播放
-        SoundEvent sound = SOUNDS[RANDOM.nextInt(SOUNDS.length)];
+
+        SoundEvent[] sounds = {SUPPORT_A, SUPPORT_B, SUPPORT_C};
+        SoundEvent sound = sounds[ThreadLocalRandom.current().nextInt(sounds.length)];
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
-            net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
-    
+
     public static void playEaster()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -40,13 +39,12 @@ public class SupportSound
         {
             return;
         }
-        
-        // 播放彩蛋音效
+
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
-            SoundEvents.SUPPORT_EASTER.get(),
-            net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            SUPPORT_EASTER,
+            SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
 }

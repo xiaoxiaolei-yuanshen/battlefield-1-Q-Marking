@@ -1,26 +1,22 @@
 package com.ea.bfaq.client.sound;
 
-import com.ea.bfaq.SoundEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PilotSound
 {
-    private static final Random RANDOM = new Random();
-    private static final SoundEvent[] PLANE_SOUNDS = {
-        SoundEvents.PLANE_A.get(),
-        SoundEvents.PLANE_B.get(),
-        SoundEvents.PLANE_C.get()
-    };
-    private static final SoundEvent[] BOMBER_SOUNDS = {
-        SoundEvents.BOMBER_A.get(),
-        SoundEvents.BOMBER_B.get(),
-        SoundEvents.BOMBER_C.get()
-    };
-    private static final SoundEvent BOMBER_EASTER_SOUND = SoundEvents.BOMBER_EASTER.get();
-    
+    private static final SoundEvent BOMBER_A = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.bomber_a"));
+    private static final SoundEvent BOMBER_B = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.bomber_b"));
+    private static final SoundEvent BOMBER_C = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.bomber_c"));
+    private static final SoundEvent BOMBER_EASTER = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.bomber_easter"));
+    private static final SoundEvent PLANE_A = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.plane_a"));
+    private static final SoundEvent PLANE_B = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.plane_b"));
+    private static final SoundEvent PLANE_C = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.plane_c"));
+
     public static void play(boolean isBomber)
     {
         Minecraft mc = Minecraft.getInstance();
@@ -28,17 +24,25 @@ public class PilotSound
         {
             return;
         }
-        
-        SoundEvent[] sounds = isBomber ? BOMBER_SOUNDS : PLANE_SOUNDS;
-        SoundEvent sound = sounds[RANDOM.nextInt(sounds.length)];
+
+        SoundEvent[] sounds;
+        if (isBomber)
+        {
+            sounds = new SoundEvent[]{BOMBER_A, BOMBER_B, BOMBER_C};
+        }
+        else
+        {
+            sounds = new SoundEvent[]{PLANE_A, PLANE_B, PLANE_C};
+        }
+        SoundEvent sound = sounds[ThreadLocalRandom.current().nextInt(sounds.length)];
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
-            net.minecraft.sounds.SoundSource.PLAYERS,
+            SoundSource.PLAYERS,
             1.0F, 1.0F, true
         );
     }
-    
+
     public static void playEaster()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -46,11 +50,11 @@ public class PilotSound
         {
             return;
         }
-        
+
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
-            BOMBER_EASTER_SOUND,
-            net.minecraft.sounds.SoundSource.PLAYERS,
+            BOMBER_EASTER,
+            SoundSource.PLAYERS,
             1.0F, 1.0F, true
         );
     }

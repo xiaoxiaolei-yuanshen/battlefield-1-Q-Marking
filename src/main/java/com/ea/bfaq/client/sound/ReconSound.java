@@ -1,21 +1,19 @@
 package com.ea.bfaq.client.sound;
 
-import com.ea.bfaq.SoundEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ReconSound
 {
-    private static final Random RANDOM = new Random();
-    private static final SoundEvent[] SOUNDS = {
-        SoundEvents.RECON_A.get(),
-        SoundEvents.RECON_B.get(),
-        SoundEvents.RECON_C.get()
-    };
-    private static final SoundEvent EASTER_SOUND = SoundEvents.RECON_EASTER.get();
-    
+    private static final SoundEvent RECON_A = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.recon_a"));
+    private static final SoundEvent RECON_B = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.recon_b"));
+    private static final SoundEvent RECON_C = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.recon_c"));
+    private static final SoundEvent RECON_EASTER = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.recon_easter"));
+
     public static void play()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -23,16 +21,17 @@ public class ReconSound
         {
             return;
         }
-        
-        SoundEvent sound = SOUNDS[RANDOM.nextInt(SOUNDS.length)];
+
+        SoundEvent[] sounds = {RECON_A, RECON_B, RECON_C};
+        SoundEvent sound = sounds[ThreadLocalRandom.current().nextInt(sounds.length)];
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
-            net.minecraft.sounds.SoundSource.PLAYERS,
+            SoundSource.PLAYERS,
             1.0F, 1.0F, true
         );
     }
-    
+
     public static void playEaster()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -40,11 +39,11 @@ public class ReconSound
         {
             return;
         }
-        
+
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
-            EASTER_SOUND,
-            net.minecraft.sounds.SoundSource.PLAYERS,
+            RECON_EASTER,
+            SoundSource.PLAYERS,
             1.0F, 1.0F, true
         );
     }

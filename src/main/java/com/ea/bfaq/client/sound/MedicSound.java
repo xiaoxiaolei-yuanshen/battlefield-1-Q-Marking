@@ -1,20 +1,19 @@
 package com.ea.bfaq.client.sound;
 
-import com.ea.bfaq.SoundEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MedicSound
 {
-    private static final Random RANDOM = new Random();
-    private static final SoundEvent[] SOUNDS = {
-        SoundEvents.MEDIC_A.get(),
-        SoundEvents.MEDIC_B.get(),
-        SoundEvents.MEDIC_C.get()
-    };
-    
+    private static final SoundEvent MEDIC_A = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.medic_a"));
+    private static final SoundEvent MEDIC_B = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.medic_b"));
+    private static final SoundEvent MEDIC_C = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.medic_c"));
+    private static final SoundEvent MEDIC_EASTER = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.medic_easter"));
+
     public static void play()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -22,17 +21,17 @@ public class MedicSound
         {
             return;
         }
-        
-        // 普通音效只在本地播放
-        SoundEvent sound = SOUNDS[RANDOM.nextInt(SOUNDS.length)];
+
+        SoundEvent[] sounds = {MEDIC_A, MEDIC_B, MEDIC_C};
+        SoundEvent sound = sounds[ThreadLocalRandom.current().nextInt(sounds.length)];
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
-            net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
-    
+
     public static void playEaster()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -40,13 +39,12 @@ public class MedicSound
         {
             return;
         }
-        
-        // 播放彩蛋音效
+
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
-            SoundEvents.MEDIC_EASTER.get(),
-            net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            MEDIC_EASTER,
+            SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
 }

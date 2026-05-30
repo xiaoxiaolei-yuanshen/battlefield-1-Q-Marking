@@ -1,20 +1,18 @@
 package com.ea.bfaq.client.sound;
 
-import com.ea.bfaq.SoundEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FlamethrowerSound
 {
-    private static final Random RANDOM = new Random();
-    private static final SoundEvent[] SOUNDS = {
-        SoundEvents.FLAMETHROWER_A.get(),
-        SoundEvents.FLAMETHROWER_B.get(),
-        SoundEvents.FLAMETHROWER_C.get()
-    };
-    
+    private static final SoundEvent FLAMETHROWER_A = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.flamethrower_a"));
+    private static final SoundEvent FLAMETHROWER_B = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.flamethrower_b"));
+    private static final SoundEvent FLAMETHROWER_C = SoundEvent.createVariableRangeEvent(new ResourceLocation("bfq", "mark.flamethrower_c"));
+
     public static void play()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -22,13 +20,14 @@ public class FlamethrowerSound
         {
             return;
         }
-        
-        SoundEvent sound = SOUNDS[RANDOM.nextInt(SOUNDS.length)];
+
+        SoundEvent[] sounds = {FLAMETHROWER_A, FLAMETHROWER_B, FLAMETHROWER_C};
+        SoundEvent sound = sounds[ThreadLocalRandom.current().nextInt(sounds.length)];
         mc.level.playLocalSound(
             mc.player.getX(), mc.player.getY(), mc.player.getZ(),
             sound,
-            net.minecraft.sounds.SoundSource.PLAYERS,
-            10.0F, 1.0F, true
+            SoundSource.PLAYERS,
+            1.0F, 1.0F, true
         );
     }
 }

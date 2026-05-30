@@ -30,7 +30,7 @@
 | **坦克猎手** 🆕 | TANK_HUNTER | 对应 **TNT矿车** |
 
 ### 3. 兵种选择GUI
-- 进入游戏后自动弹出 **兵种选择界面** ([ClassSelectionScreen](file:///e:/mod/bfq/src/main/java/com/ea/bfaq/client/gui/ClassSelectionScreen.java))
+用/zy指令选择
 - 可选：突击兵、医疗兵、侦察兵、支援兵
 - 选择后兵种信息会同步到服务器
 

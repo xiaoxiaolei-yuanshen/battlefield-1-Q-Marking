@@ -1,46 +1,89 @@
+根据我对整个代码库的分析，以下是 **BFQ (战地一按键标记)** 模组的完整功能清单：
 
-Source installation information for modders
--------------------------------------------
-This code follows the Minecraft Forge installation methodology. It will apply
-some small patches to the vanilla MCP source code, giving you and it access 
-to some of the data and functions you need to build a successful mod.
+---
 
-Note also that the patches are built against "un-renamed" MCP source code (aka
-SRG Names) - this means that you will not be able to read them directly against
-normal code.
+## 🎯 核心功能
 
-Setup Process:
-==============================
+### 1. Q键标记系统
+- 按 **Q键** 标记准星指向的实体（玩家/生物/矿车等）
+- 标记范围：**150格**
+- 标记冷却：**200ms**
+- 标记持续：**15秒**
+- 标记图标以3D方式悬浮在实体头顶，随距离自动缩放
+- 支持淡入淡出效果
 
-Step 1: Open your command-line and browse to the folder where you extracted the zip file.
+### 2. 兵种系统（战地1风格）
+| 兵种 | 对应标记 | 说明 |
+|------|---------|------|
+| 突击兵 | ASSAULT | 玩家可选 |
+| 医疗兵 | MEDIC | 玩家可选 |
+| 侦察兵 | RECON | 玩家可选 |
+| 支援兵 | SUPPORT | 玩家可选 |
+| 突袭兵 | RAIDER | 对应 Ravager / 猪灵蛮兵等 |
+| 喷火兵 | FLAMETHROWER | 对应 Blaze |
+| 哨兵 | SENTRY | 对应 Iron Golem / Snow Golem |
+| 飞行员 | PILOT | 对应 龙/幻翼/恶魂/凋灵/鹦鹉 |
+| 坦克兵 | TANK | 对应 Guardian/远古守卫者 |
+| 步枪兵 | RIFLE | 对应 Warden |
+| 战壕奇兵 | TRENCH_FIGHTER | 对应 猪灵蛮兵/Vindicator |
+| 入侵者 | INVADER | - |
+| **坦克猎手** 🆕 | TANK_HUNTER | 对应 **TNT矿车** |
 
-Step 2: You're left with a choice.
-If you prefer to use Eclipse:
-1. Run the following command: `./gradlew genEclipseRuns`
-2. Open Eclipse, Import > Existing Gradle Project > Select Folder 
-   or run `gradlew eclipse` to generate the project.
+### 3. 兵种选择GUI
+- 进入游戏后自动弹出 **兵种选择界面** ([ClassSelectionScreen](file:///e:/mod/bfq/src/main/java/com/ea/bfaq/client/gui/ClassSelectionScreen.java))
+- 可选：突击兵、医疗兵、侦察兵、支援兵
+- 选择后兵种信息会同步到服务器
 
-If you prefer to use IntelliJ:
-1. Open IDEA, and import project.
-2. Select your build.gradle file and have it import.
-3. Run the following command: `./gradlew genIntellijRuns`
-4. Refresh the Gradle Project in IDEA if required.
+### 4. 装备发现UI（屏幕顶部提示）
+标记特定实体时屏幕顶部显示提示条（5秒淡出）：
+| 实体 | 提示文字 |
+|------|---------|
+| Blaze（喷火兵） | 已 發 現 噴 火 兵 裝 備 |
+| Iron Golem（哨兵） | 已 發 現 哨 兵 裝 備 |
+| 箱子矿车（战壕奇兵） | 已 發 現 戰 壕 奇 兵 裝 備 |
+| 漏斗矿车（入侵者） | 已 發 現 入 侵 者 裝 備 |
+| **TNT矿车（坦克猎手）** 🆕 | **已 發 現 坦 克 獵 手 裝 備** |
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can 
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-(this does not affect your code) and then start the process again.
+### 5. 标记音效系统（50+语音）
+每个兵种拥有多套语音（随机播放）：
+- **普通语音**：A/B/C 三选一
+- **彩蛋语音**：5%概率触发稀有语音
+- **击杀音效**：KILL / HEADSHOT_KILL
+- **需要弹药音效**：支援兵专属（A~E共5种）
+- **低血量求救音效**：医疗兵专属（A~D共4种）
+- 彩蛋语音会通过服务器转发给**同小队 + 20格内**的队友
 
-Mapping Names:
-=============================
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license, if you do not agree with it you can change your mapping names to other crowdsourced names in your 
-build.gradle. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
+### 6. 友军标记系统
+- 标记友军不会播放音效
+- 友军头顶显示绿色标记（带 `_ally` / `_team` 后缀纹理）
+- 通过队伍系统（Scoreboard Team）判断敌友
 
-Additional Resources: 
-=========================
-Community Documentation: https://docs.minecraftforge.net/en/1.20.1/gettingstarted/
-LexManos' Install Video: https://youtu.be/8VEdtQLuLO0
-Forge Forums: https://forums.minecraftforge.net/
-Forge Discord: https://discord.minecraftforge.net/
+### 7. 小队/队友系统
+- `/xd team <名称>` — 创建/加入小队
+- `/zy` — 相关队伍管理命令
+- 同小队成员头顶显示对应兵种标记
+- 小队成员列表实时同步
+
+### 8. 击杀音效系统
+- 击杀实体后播放战地1风格击杀音效
+- 友军击杀 vs 敌军击杀音效不同
+- 兼容性检测：若安装了 `gd656killicon` 模组则跳过
+
+### 9. 网络同步
+- **6种数据包**：标记、队友同步、兵种同步、GUI控制、击杀音效、标记音效
+- 标记数据实时同步给同小队成员
+- 支持服务端安装/未安装模组两种场景
+
+### 10. 多人游戏支持
+- 完整的服务端-客户端分离架构
+- 服务端命令：兵种/队伍管理
+- 支持 Forge 1.20.1 + Java 17
+- 配置文件：`config/bfq-common.toml`
+
+---
+
+### 技术栈
+- **框架**：Forge 47.3.1 (Minecraft 1.20.1)
+- **语言**：Java 17
+- **资源**：~40个音效文件(.ogg)、~32张纹理(.png)
+- **作者**：xiao_xiao_lei, Misaka_1530

@@ -4,14 +4,11 @@ package com.ea.bfaq.client;
 // 关注b站UID:1157669161谢谢喵
 
 import com.ea.bfaq.BF1Q;
-import com.ea.bfaq.SoundEvents;
 import com.ea.bfaq.mark.MarkData;
 import com.ea.bfaq.mark.MarkManager;
 import com.ea.bfaq.network.NetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -44,18 +41,14 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = BF1Q.MODID, value = Dist.CLIENT)
 public class MarkKeyHandler
 {
     private static final double MARK_RANGE = 150.0D;
-    private static final Random RANDOM = new Random();
-    private static long lastEnemySoundPlayTime = 0;
-    private static final long SOUND_COOLDOWN_MS = 500; // 0.5秒音效冷却
     private static long lastMarkTime = 0;
-    private static final long MARK_COOLDOWN_MS = 200; // 0.2秒标记冷却
+    private static final long MARK_COOLDOWN_MS = 200;
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event)
@@ -69,83 +62,132 @@ public class MarkKeyHandler
         if (KeyBindings.MARK_ENEMY.consumeClick())
         {
             Entity target = getEntityLookingAt(mc.player, MARK_RANGE);
-            
+            System.out.println("[BFQ-Debug] 标记按键按下, target: " + (target != null ? target.getType().toString() : "null"));
+
             if (target != null && isValidTarget(target))
             {
+                System.out.println("[BFQ-Debug] 目标有效, 开始处理");
                 boolean isFriendly = isFriendlyTarget(target, mc.player);
                 MarkData.MarkType markType = getMarkTypeForEntity(target);
+                System.out.println("[BFQ-Debug] 标记类型: " + markType);
                 markEntity(target, markType, isFriendly);
+            }
+            else
+            {
+                System.out.println("[BFQ-Debug] 目标无效或为空");
             }
         }
     }
 
     private static MarkData.MarkType getMarkTypeForEntity(Entity entity)
     {
+        System.out.println("[getMarkTypeForEntity] ========== 开始 ==========");
+        System.out.println("[getMarkTypeForEntity] 实体类型: " + entity.getType().toString());
+
         if (entity instanceof Player)
         {
             UUID playerUUID = entity.getUUID();
-            String playerClass = com.ea.bfaq.commands.ZYCommand.getPlayerClass(playerUUID);
+            String playerClass = com.ea.bfaq.network.NetworkHandler.ClientClassManager.getPlayerClass(playerUUID);
+            System.out.println("[getMarkTypeForEntity] 玩家: " + entity.getName().getString() + ", UUID: " + playerUUID + ", 职业: " + (playerClass != null ? playerClass : "null"));
             if (playerClass != null)
             {
-                return switch (playerClass) {
+                MarkData.MarkType result = switch (playerClass) {
                     case "assault" -> MarkData.MarkType.ASSAULT;
                     case "medic" -> MarkData.MarkType.MEDIC;
                     case "recon" -> MarkData.MarkType.RECON;
                     case "support" -> MarkData.MarkType.SUPPORT;
-                    default -> MarkData.MarkType.random();
+                    default -> MarkData.MarkType.random(null);
                 };
+                System.out.println("[getMarkTypeForEntity] 返回: " + result);
+                System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
+                return result;
             }
-            return MarkData.MarkType.random();
+            System.out.println("[getMarkTypeForEntity] 职业为null，随机选择");
+            MarkData.MarkType randomResult = MarkData.MarkType.random(null);
+            System.out.println("[getMarkTypeForEntity] 返回: " + randomResult);
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
+            return randomResult;
         }
         
         if (entity instanceof Ravager)
         {
+            System.out.println("[getMarkTypeForEntity] Ravager 返回 RAIDER");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.RAIDER;
         }
-        
+
         if (entity instanceof ElderGuardian || entity instanceof Guardian)
         {
+            System.out.println("[getMarkTypeForEntity] Guardian 返回 TANK");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.TANK;
         }
-        
+
         if (entity instanceof Warden)
         {
+            System.out.println("[getMarkTypeForEntity] Warden 返回 RIFLE");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.RIFLE;
         }
-        
+
         if (entity instanceof EnderDragon || entity instanceof Phantom || entity instanceof Ghast || entity instanceof WitherBoss)
         {
+            System.out.println("[getMarkTypeForEntity] PILOT类型生物 返回 PILOT");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.PILOT;
         }
-        
+
         if (entity instanceof Blaze)
         {
+            System.out.println("[getMarkTypeForEntity] Blaze 返回 FLAMETHROWER");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.FLAMETHROWER;
         }
-        
+
         if (entity instanceof IronGolem || entity instanceof SnowGolem)
         {
+            System.out.println("[getMarkTypeForEntity] Golem 返回 SENTRY");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.SENTRY;
         }
-        
+
         if (entity instanceof Parrot)
         {
+            System.out.println("[getMarkTypeForEntity] Parrot 返回 PILOT");
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
             return MarkData.MarkType.PILOT;
         }
-        
+
         String entityName = entity.getType().toString().toLowerCase();
-        
+        System.out.println("[getMarkTypeForEntity] 生物实体名称: " + entityName);
+
+        if (entityName.contains("creeper"))
+        {
+            System.out.println("[getMarkTypeForEntity] 苦力怕使用随机");
+            MarkData.MarkType randomResult = MarkData.MarkType.random(null);
+            System.out.println("[getMarkTypeForEntity] 返回: " + randomResult);
+            System.out.println("[getMarkTypeForEntity] ========== 结束 ==========");
+            return randomResult;
+        }
+
         if (entityName.contains("hoglin") || entityName.contains("zoglin"))
         {
+            System.out.println("[BFQ-Debug] Hoglin/Zoglin 返回 RAIDER");
             return MarkData.MarkType.RAIDER;
         }
-        
-        if (entityName.contains("horse") || entityName.contains("llama") || entityName.contains("mule") || 
+
+        if (entityName.contains("horse") || entityName.contains("llama") || entityName.contains("mule") ||
             entityName.contains("donkey") || entityName.contains("strider") || entityName.contains("trader_llama"))
         {
+            System.out.println("[BFQ-Debug] 马类 返回 RAIDER");
             return MarkData.MarkType.RAIDER;
         }
-        
+
+        if (entityName.contains("tnt_minecart"))
+        {
+            return MarkData.MarkType.TANK_HUNTER_EQUIPMENT;
+        }
+
         if (entityName.contains("chest_minecart"))
         {
             return MarkData.MarkType.TRENCH_FIGHTER_EQUIPMENT;
@@ -156,16 +198,19 @@ public class MarkKeyHandler
         }
         else if (entityName.contains("piglin_brute") || entityName.contains("vindicator"))
         {
+            System.out.println("[BFQ-Debug] 猪灵蛮兵/Vindicator 返回 TRENCH_FIGHTER");
             return MarkData.MarkType.TRENCH_FIGHTER;
         }
-        
+
         if (entityName.contains("skeleton_horse") || entityName.contains("zombie_horse"))
         {
+            System.out.println("[BFQ-Debug] 骷髅马/僵尸马 返回 RAIDER");
             return MarkData.MarkType.RAIDER;
         }
-        
-        // 所有其他实体都使用随机标记类型
-        return MarkData.MarkType.random();
+
+        // 所有其他实体使用随机
+        System.out.println("[BFQ-Debug] 其他生物使用随机");
+        return MarkData.MarkType.random(null);
     }
 
     private static Entity getEntityLookingAt(LocalPlayer player, double maxDistance)
@@ -176,7 +221,7 @@ public class MarkKeyHandler
         
         AABB searchBox = player.getBoundingBox().expandTowards(lookVector.scale(maxDistance)).inflate(3.0D);
         
-        List<Entity> entities = player.level().getEntities(player, searchBox, entity -> entity instanceof LivingEntity || entity.getType().toString().toLowerCase().contains("chest_minecart") || entity.getType().toString().toLowerCase().contains("hopper_minecart"));
+        List<Entity> entities = player.level().getEntities(player, searchBox, entity -> entity instanceof LivingEntity || entity.getType().toString().toLowerCase().contains("chest_minecart") || entity.getType().toString().toLowerCase().contains("hopper_minecart") || entity.getType().toString().toLowerCase().contains("tnt_minecart"));
         
         Entity closestEntity = null;
         double closestDistance = maxDistance;
@@ -359,31 +404,28 @@ public class MarkKeyHandler
 
     private static void markEntity(Entity entity, MarkData.MarkType markType, boolean isFriendly)
     {
+        System.out.println("[markEntity] ========== 开始 ==========");
+        System.out.println("[markEntity] 目标: " + entity.getName().getString() + " (" + entity.getUUID() + ")");
+        System.out.println("[markEntity] 传入的 markType: " + markType + ", isFriendly: " + isFriendly);
+        
         long currentTime = System.currentTimeMillis();
         
         // 检查标记冷却
         if (currentTime - lastMarkTime < MARK_COOLDOWN_MS)
         {
+            System.out.println("[markEntity] 在标记冷却中，返回");
+            System.out.println("[markEntity] ========== 结束 ==========");
             return;
         }
         
         // 检查目标是否已经被标记
-        if (com.ea.bfaq.mark.MarkManager.getInstance().hasActiveMark(entity.getUUID()))
-        {
-            return;
-        }
+        boolean hasMark = com.ea.bfaq.mark.MarkManager.getInstance().hasActiveMark(entity.getUUID());
         
         // 先在本地添加标记，这样即使服务器没有mod也能显示
-        com.ea.bfaq.mark.MarkManager.getInstance().addMark(entity.getUUID(), markType, isFriendly);
-        
-        // 移除标记触发动画
-        if (!isFriendly && entity instanceof LivingEntity)
-        {
-            // com.ea.bfaq.client.animation.AnimationController.getInstance().playMarkEnemyAnimation();
-        }
+        MarkData.MarkType finalMarkType = com.ea.bfaq.mark.MarkManager.getInstance().addMark(entity.getUUID(), markType, isFriendly);
         
         NetworkHandler.INSTANCE.sendToServer(
-                new NetworkHandler.MarkPacket(entity.getUUID(), markType, isFriendly)
+                new NetworkHandler.MarkPacket(entity.getUUID(), finalMarkType, isFriendly)
         );
         
         Minecraft mc = Minecraft.getInstance();
@@ -399,120 +441,39 @@ public class MarkKeyHandler
             lastMarkTime = currentTime;
             return;
         }
-        
-        // 检查音效冷却
-        if (currentTime - lastEnemySoundPlayTime < SOUND_COOLDOWN_MS)
+
+        // 目标已被标记时不重复播放音效
+        if (hasMark)
         {
             lastMarkTime = currentTime;
             return;
         }
-        
-        // 普通标记音效只在本地播放，彩蛋音效通过网络广播给其他玩家
-        switch (markType)
-        {
-            case ASSAULT:
-                if (new java.util.Random().nextInt(100) < 10)
-                {
-                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("assault_easter"));
-                    com.ea.bfaq.client.sound.AssaultSound.playEaster();
-                }
-                else
-                {
-                    com.ea.bfaq.client.sound.AssaultSound.play();
-                }
-                break;
-            case MEDIC:
-                // 10%概率播放彩蛋音效
-                if (new java.util.Random().nextInt(100) < 10)
-                {
-                    // 彩蛋音效通过网络广播给其他玩家
-                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("medic_easter"));
-                    // 本地也播放彩蛋音效
-                    com.ea.bfaq.client.sound.MedicSound.playEaster();
-                }
-                else
-                {
-                    // 普通音效只在本地播放
-                    com.ea.bfaq.client.sound.MedicSound.play();
-                }
-                break;
-            case SUPPORT:
-                // 10%概率播放彩蛋音效
-                if (new java.util.Random().nextInt(100) < 10)
-                {
-                    // 彩蛋音效通过网络广播给其他玩家
-                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("support_easter"));
-                    // 本地也播放彩蛋音效
-                    com.ea.bfaq.client.sound.SupportSound.playEaster();
-                }
-                else
-                {
-                    // 普通音效只在本地播放
-                    com.ea.bfaq.client.sound.SupportSound.play();
-                }
-                break;
-            case RECON:
-                if (new java.util.Random().nextInt(100) < 10)
-                {
-                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("recon_easter"));
-                    com.ea.bfaq.client.sound.ReconSound.playEaster();
-                }
-                else
-                {
-                    com.ea.bfaq.client.sound.ReconSound.play();
-                }
-                break;
-            case RAIDER:
-                com.ea.bfaq.client.sound.RaiderSound.play();
-                break;
-            case FLAMETHROWER:
-                com.ea.bfaq.client.sound.FlamethrowerSound.play();
-                break;
-            case SENTRY:
-                com.ea.bfaq.client.sound.SentrySound.play();
-                break;
-            case PILOT:
-                boolean isBomber = entity instanceof EnderDragon || entity instanceof WitherBoss;
-                if (isBomber && new java.util.Random().nextInt(100) < 10)
-                {
-                    NetworkHandler.INSTANCE.sendToServer(new NetworkHandler.MarkSoundPacket("bomber_easter"));
-                    com.ea.bfaq.client.sound.PilotSound.playEaster();
-                }
-                else
-                {
-                    com.ea.bfaq.client.sound.PilotSound.play(isBomber);
-                }
-                break;
-            case TRENCH_FIGHTER:
-                com.ea.bfaq.client.sound.RaiderSound.play();
-                break;
-            case TRENCH_FIGHTER_EQUIPMENT:
-                com.ea.bfaq.client.sound.TrenchFighterSound.play();
-                break;
-            case INVADER_EQUIPMENT:
-                com.ea.bfaq.client.sound.InvaderSound.play();
-                break;
-        }
-        
+
+        // 播放标记音效
+        com.ea.bfaq.client.sound.MarkSoundPlayer.playMarkSound(entity, finalMarkType);
+
         // 显示UI，只在本地标记时显示
-        if (markType == MarkData.MarkType.FLAMETHROWER)
+        if (finalMarkType == MarkData.MarkType.FLAMETHROWER)
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowFlamethrowerUI(true);
         }
-        else if (markType == MarkData.MarkType.SENTRY)
+        else if (finalMarkType == MarkData.MarkType.SENTRY)
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowUI(true);
         }
-        else if (markType == MarkData.MarkType.TRENCH_FIGHTER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("chest_minecart"))
+        else if (finalMarkType == MarkData.MarkType.TRENCH_FIGHTER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("chest_minecart"))
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowMinecartUI(true);
         }
-        else if (markType == MarkData.MarkType.INVADER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("hopper_minecart"))
+        else if (finalMarkType == MarkData.MarkType.INVADER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("hopper_minecart"))
         {
             com.ea.bfaq.client.gui.TopBarGUI.setShowHopperUI(true);
         }
-        
-        lastEnemySoundPlayTime = currentTime;
+        else if (finalMarkType == MarkData.MarkType.TANK_HUNTER_EQUIPMENT && entity.getType().toString().toLowerCase().contains("tnt_minecart"))
+        {
+            com.ea.bfaq.client.gui.TopBarGUI.setShowTankHunterUI(true);
+        }
+
         lastMarkTime = currentTime;
     }
 }

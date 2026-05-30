@@ -19,10 +19,12 @@ public class TopBarGUI
     private static boolean showFlamethrowerUI = false;
     private static boolean showMinecartUI = false;
     private static boolean showHopperUI = false;
+    private static boolean showTankHunterUI = false;
     private static long uiStartTime = 0;
     private static long flamethrowerUIStartTime = 0;
     private static long minecartUIStartTime = 0;
     private static long hopperUIStartTime = 0;
+    private static long tankHunterUIStartTime = 0;
     private static final long UI_DURATION = 5000; // 5秒UI持续时长
     private static final long FADE_DURATION = 450; // 0.45秒淡入淡出时长
     
@@ -64,6 +66,16 @@ public class TopBarGUI
                 showHopperUI = false;
             } else {
                 renderHopperTopBar(gui, guiGraphics, width, height);
+            }
+        }
+        
+        // 检查坦克猎手装备UI是否应该显示
+        if (showTankHunterUI) {
+            // 检查是否过期
+            if (System.currentTimeMillis() - tankHunterUIStartTime > UI_DURATION) {
+                showTankHunterUI = false;
+            } else {
+                renderTankHunterTopBar(gui, guiGraphics, width, height);
             }
         }
     };
@@ -116,6 +128,19 @@ public class TopBarGUI
             showMinecartUI = false;
             // 记录入侵者UI显示的开始时间
             hopperUIStartTime = System.currentTimeMillis();
+        }
+    }
+    
+    public static void setShowTankHunterUI(boolean show) {
+        showTankHunterUI = show;
+        if (show) {
+            // 显示坦克猎手UI时，隐藏其他UI
+            showUI = false;
+            showFlamethrowerUI = false;
+            showMinecartUI = false;
+            showHopperUI = false;
+            // 记录坦克猎手UI显示的开始时间
+            tankHunterUIStartTime = System.currentTimeMillis();
         }
     }
     
@@ -392,6 +417,59 @@ public class TopBarGUI
         guiGraphics.drawString(mc.font, text, 0, 0, textColor);
         
         // 恢复PoseStack状态
+        guiGraphics.pose().popPose();
+    }
+    
+    private static void renderTankHunterTopBar(ForgeGui gui, GuiGraphics guiGraphics, int width, int height)
+    {
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        
+        if (player == null)
+        {
+            return;
+        }
+        
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - tankHunterUIStartTime;
+        
+        float alpha = 1.0F;
+        if (elapsedTime < FADE_DURATION) {
+            alpha = (float) elapsedTime / FADE_DURATION;
+        } else if (elapsedTime > UI_DURATION - FADE_DURATION) {
+            alpha = 1.0F - (float) (elapsedTime - (UI_DURATION - FADE_DURATION)) / FADE_DURATION;
+        }
+        
+        alpha = Math.max(0.0F, Math.min(1.0F, alpha));
+        
+        int barHeight = 20;
+        int barWidth = width * 2 / 5;
+        int barX = width / 2 - barWidth / 2;
+        int barY = 30;
+        
+        int color = (int) (0x60 * alpha) << 24 | 0x222222;
+        
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, color);
+        
+        String text = "已 發 現 坦 克 獵 手 裝 備";
+        
+        guiGraphics.pose().pushPose();
+        
+        int textWidth = mc.font.width(text);
+        float scale = 1.5F;
+        float scaledTextWidth = textWidth * scale;
+        float scaledTextHeight = mc.font.lineHeight * scale;
+        
+        float textX = barX + (barWidth - scaledTextWidth) / 2;
+        float textY = barY + (barHeight - scaledTextHeight) / 2;
+        
+        guiGraphics.pose().translate(textX, textY, 0);
+        guiGraphics.pose().scale(scale, scale, 1.0F);
+        
+        int textColor = (int) (255 * alpha) << 24 | 0xFFFFFF;
+        
+        guiGraphics.drawString(mc.font, text, 0, 0, textColor);
+        
         guiGraphics.pose().popPose();
     }
 }

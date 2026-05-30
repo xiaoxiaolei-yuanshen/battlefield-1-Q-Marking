@@ -53,7 +53,8 @@ public class MarkData
         TRENCH_FIGHTER("trench_fighter"),
         INVADER("invader"),
         TRENCH_FIGHTER_EQUIPMENT("trench_fighter_equipment"),
-        INVADER_EQUIPMENT("invader_equipment");
+        INVADER_EQUIPMENT("invader_equipment"),
+        TANK_HUNTER_EQUIPMENT("tank_hunter_equipment");
 
         private final String textureName;
 
@@ -68,6 +69,12 @@ public class MarkData
         }
 
         public static MarkType random()
+        {
+            MarkType[] types = {ASSAULT, MEDIC, RECON, SUPPORT};
+            return types[(int) (Math.random() * types.length)];
+        }
+
+        public static MarkType random(String entityTypeName)
         {
             MarkType[] types = {ASSAULT, MEDIC, RECON, SUPPORT};
             return types[(int) (Math.random() * types.length)];

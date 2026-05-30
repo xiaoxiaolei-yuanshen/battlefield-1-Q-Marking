@@ -16,20 +16,14 @@ public class MarkManager
         return INSTANCE;
     }
 
-    public void addMark(UUID targetUUID, MarkData.MarkType markType, boolean isFriendly)
+    public MarkData.MarkType addMark(UUID targetUUID, MarkData.MarkType markType, boolean isFriendly)
     {
-        MarkData.MarkType finalType = markType;
-        
-        if (savedMarkTypes.containsKey(targetUUID))
-        {
-            finalType = savedMarkTypes.get(targetUUID);
-        }
-        else
-        {
-            savedMarkTypes.put(targetUUID, finalType);
-        }
+        // 使用 putIfAbsent 确保原子性地保存标记类型
+        savedMarkTypes.putIfAbsent(targetUUID, markType);
+        MarkData.MarkType finalType = savedMarkTypes.get(targetUUID);
         
         marks.put(targetUUID, new MarkData(targetUUID, finalType, isFriendly));
+        return finalType;
     }
 
     public void removeMark(UUID targetUUID)

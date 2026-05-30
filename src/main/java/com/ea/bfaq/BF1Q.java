@@ -6,6 +6,7 @@ package com.ea.bfaq;
 import com.ea.bfaq.client.KeyBindings;
 import com.ea.bfaq.commands.XDCommand;
 import com.ea.bfaq.commands.ZYCommand;
+import com.ea.bfaq.network.NetworkHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -51,6 +52,7 @@ public class BF1Q
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         LOGGER.info("Battlefield 1 Q mod loaded");
+        NetworkHandler.register();
     }
 
     @SubscribeEvent

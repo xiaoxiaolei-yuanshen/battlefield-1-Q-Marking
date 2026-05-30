@@ -5,10 +5,7 @@ import com.ea.bfaq.mark.MarkData;
 import com.ea.bfaq.mark.MarkManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -282,7 +279,15 @@ public class NetworkHandler
         {
             ctx.get().enqueueWork(() -> {
                 DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                    net.minecraft.client.Minecraft.getInstance().setScreen(new com.ea.bfaq.client.gui.ClassSelectionScreen());
+                    try {
+                        Class<?> minecraftClass = Class.forName("net.minecraft.client.Minecraft");
+                        Object mcInstance = minecraftClass.getMethod("getInstance").invoke(null);
+                        Class<?> screenClass = Class.forName("com.ea.bfaq.client.gui.ClassSelectionScreen");
+                        Object screenInstance = screenClass.getConstructor().newInstance();
+                        minecraftClass.getMethod("setScreen", Class.forName("net.minecraft.client.gui.screens.Screen")).invoke(mcInstance, screenInstance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
             });
             ctx.get().setPacketHandled(true);
@@ -399,20 +404,45 @@ public class NetworkHandler
     public static class MarkSoundPacket
     {
         private final String soundType;
+        private final UUID senderUUID;
 
         public MarkSoundPacket(String soundType)
         {
             this.soundType = soundType;
+            this.senderUUID = null;
+        }
+
+        public MarkSoundPacket(String soundType, UUID senderUUID)
+        {
+            this.soundType = soundType;
+            this.senderUUID = senderUUID;
         }
 
         public MarkSoundPacket(FriendlyByteBuf buf)
         {
             this.soundType = buf.readUtf();
+            if (buf.readBoolean())
+            {
+                this.senderUUID = buf.readUUID();
+            }
+            else
+            {
+                this.senderUUID = null;
+            }
         }
 
         public void encode(FriendlyByteBuf buf)
         {
             buf.writeUtf(soundType);
+            if (senderUUID != null)
+            {
+                buf.writeBoolean(true);
+                buf.writeUUID(senderUUID);
+            }
+            else
+            {
+                buf.writeBoolean(false);
+            }
         }
 
         public static MarkSoundPacket decode(FriendlyByteBuf buf)
@@ -426,179 +456,87 @@ public class NetworkHandler
                 net.minecraft.server.level.ServerPlayer player = ctx.get().getSender();
                 if (player != null)
                 {
-                    // 广播给所有玩家
+                    UUID senderUUID = player.getUUID();
+                    String finalSoundType = this.soundType;
+                    net.minecraft.world.scores.Team senderTeam = player.getTeam();
+
                     for (net.minecraft.server.level.ServerPlayer serverPlayer : net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
                     {
+                        if (serverPlayer.getUUID().equals(senderUUID))
+                        {
+                            continue;
+                        }
+
+                        // 只转发给同小队的玩家
+                        if (senderTeam == null || serverPlayer.getTeam() == null || !senderTeam.getName().equals(serverPlayer.getTeam().getName()))
+                        {
+                            continue;
+                        }
+
+                        // 只转发给标记者半径20格内的队友
+                        double distSqr = serverPlayer.distanceToSqr(player);
+                        if (distSqr > 20.0 * 20.0)
+                        {
+                            continue;
+                        }
+
                         INSTANCE.send(
                             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> serverPlayer),
-                            new MarkSoundPacket(soundType)
+                            new MarkSoundPacket(finalSoundType, senderUUID)
                         );
                     }
                 }
                 else
                 {
-                    // 客户端处理
-                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-                        if (mc.player != null)
-                        {
-                            switch (soundType)
+                    // 客户端处理 - 只处理从服务器转发的音效包（senderUUID不为null）
+                    if (this.senderUUID != null)
+                    {
+                        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+                            if (mc.player != null)
                             {
-                                case "assault":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] assaultSounds = {
-                                        com.ea.bfaq.SoundEvents.ASSAULT_A.get(),
-                                        com.ea.bfaq.SoundEvents.ASSAULT_B.get(),
-                                        com.ea.bfaq.SoundEvents.ASSAULT_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent assaultSound = assaultSounds[new java.util.Random().nextInt(assaultSounds.length)];
-                                    mc.player.playSound(assaultSound, 1.0F, 1.0F);
-                                    break;
-                                case "assault_easter":
-                                    // 只播放彩蛋音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.ASSAULT_EASTER.get(),
-                                        1.0F, 1.0F
-                                    );
-                                    break;
-                                case "medic":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] medicSounds = {
-                                        com.ea.bfaq.SoundEvents.MEDIC_A.get(),
-                                        com.ea.bfaq.SoundEvents.MEDIC_B.get(),
-                                        com.ea.bfaq.SoundEvents.MEDIC_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent medicSound = medicSounds[new java.util.Random().nextInt(medicSounds.length)];
-                                    mc.player.playSound(medicSound, 1.0F, 1.0F);
-                                    break;
-                                case "support":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] supportSounds = {
-                                        com.ea.bfaq.SoundEvents.SUPPORT_A.get(),
-                                        com.ea.bfaq.SoundEvents.SUPPORT_B.get(),
-                                        com.ea.bfaq.SoundEvents.SUPPORT_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent supportSound = supportSounds[new java.util.Random().nextInt(supportSounds.length)];
-                                    mc.player.playSound(supportSound, 1.0F, 1.0F);
-                                    break;
-                                case "recon":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] reconSounds = {
-                                        com.ea.bfaq.SoundEvents.RECON_A.get(),
-                                        com.ea.bfaq.SoundEvents.RECON_B.get(),
-                                        com.ea.bfaq.SoundEvents.RECON_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent reconSound = reconSounds[new java.util.Random().nextInt(reconSounds.length)];
-                                    mc.player.playSound(reconSound, 1.0F, 1.0F);
-                                    break;
-                                case "recon_easter":
-                                    // 只播放彩蛋音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.RECON_EASTER.get(),
-                                        1.0F, 1.0F
-                                    );
-                                    break;
-                                case "raider":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] raiderSounds = {
-                                        com.ea.bfaq.SoundEvents.RAIDER_A.get(),
-                                        com.ea.bfaq.SoundEvents.RAIDER_B.get(),
-                                        com.ea.bfaq.SoundEvents.RAIDER_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent raiderSound = raiderSounds[new java.util.Random().nextInt(raiderSounds.length)];
-                                    mc.player.playSound(raiderSound, 1.0F, 1.0F);
-                                    break;
-                                case "flamethrower":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] flamethrowerSounds = {
-                                        com.ea.bfaq.SoundEvents.FLAMETHROWER_A.get(),
-                                        com.ea.bfaq.SoundEvents.FLAMETHROWER_B.get(),
-                                        com.ea.bfaq.SoundEvents.FLAMETHROWER_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent flamethrowerSound = flamethrowerSounds[new java.util.Random().nextInt(flamethrowerSounds.length)];
-                                    mc.player.playSound(flamethrowerSound, 1.0F, 1.0F);
-                                    break;
-                                case "sentry":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] sentrySounds = {
-                                        com.ea.bfaq.SoundEvents.SENTRY_A.get(),
-                                        com.ea.bfaq.SoundEvents.SENTRY_B.get(),
-                                        com.ea.bfaq.SoundEvents.SENTRY_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent sentrySound = sentrySounds[new java.util.Random().nextInt(sentrySounds.length)];
-                                    mc.player.playSound(sentrySound, 1.0F, 1.0F);
-                                    break;
-                                case "pilot":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] planeSounds = {
-                                        com.ea.bfaq.SoundEvents.PLANE_A.get(),
-                                        com.ea.bfaq.SoundEvents.PLANE_B.get(),
-                                        com.ea.bfaq.SoundEvents.PLANE_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent planeSound = planeSounds[new java.util.Random().nextInt(planeSounds.length)];
-                                    mc.player.playSound(planeSound, 1.0F, 1.0F);
-                                    break;
-                                case "bomber":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    net.minecraft.sounds.SoundEvent[] bomberSounds = {
-                                        com.ea.bfaq.SoundEvents.BOMBER_A.get(),
-                                        com.ea.bfaq.SoundEvents.BOMBER_B.get(),
-                                        com.ea.bfaq.SoundEvents.BOMBER_C.get()
-                                    };
-                                    net.minecraft.sounds.SoundEvent bomberSound = bomberSounds[new java.util.Random().nextInt(bomberSounds.length)];
-                                    mc.player.playSound(bomberSound, 1.0F, 1.0F);
-                                    break;
-                                case "bomber_easter":
-                                    // 只播放彩蛋音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.BOMBER_EASTER.get(),
-                                        1.0F, 1.0F
-                                    );
-                                    break;
-                                case "medic_easter":
-                                    // 只播放彩蛋音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.MEDIC_EASTER.get(),
-                                        1.0F, 1.0F
-                                    );
-                                    break;
-                                case "support_easter":
-                                    // 只播放彩蛋音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.SUPPORT_EASTER.get(),
-                                        1.0F, 1.0F
-                                    );
-                                    break;
-                                case "trench_fighter":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.TRENCH_FIGHTER.get(),
-                                        10.0F, 1.0F
-                                    );
-                                    break;
-                                case "invader":
-                                    // 只播放普通音效，不触发随机逻辑
-                                    mc.player.playSound(
-                                        com.ea.bfaq.SoundEvents.INVADER.get(),
-                                        10.0F, 1.0F
-                                    );
-                                    break;
+                                System.out.println("[BFQ-Network] 客户端收到转发音效包: soundType=" + soundType + ", senderUUID=" + senderUUID + ", playerUUID=" + mc.player.getUUID().toString());
+
+                                if (this.senderUUID.equals(mc.player.getUUID()))
+                                {
+                                    System.out.println("[BFQ-Network] 跳过本地播放（自己发送的包）");
+                                    return;
+                                }
+
+                                net.minecraft.sounds.SoundEvent soundEvent = null;
+                                switch (soundType)
+                                {
+                                    case "mark.assault_easter":
+                                        soundEvent = com.ea.bfaq.SoundEvents.ASSAULT_EASTER.get();
+                                        break;
+                                    case "mark.medic_easter":
+                                        soundEvent = com.ea.bfaq.SoundEvents.MEDIC_EASTER.get();
+                                        break;
+                                    case "mark.support_easter":
+                                        soundEvent = com.ea.bfaq.SoundEvents.SUPPORT_EASTER.get();
+                                        break;
+                                    case "mark.recon_easter":
+                                        soundEvent = com.ea.bfaq.SoundEvents.RECON_EASTER.get();
+                                        break;
+                                    case "mark.bomber_easter":
+                                        soundEvent = com.ea.bfaq.SoundEvents.BOMBER_EASTER.get();
+                                        break;
+                                    default:
+                                        System.out.println("[BFQ-Network] 未知音效类型: " + soundType);
+                                        break;
+                                }
+
+                                if (soundEvent != null)
+                                {
+                                    System.out.println("[BFQ-Network] 播放音效: " + soundEvent.getLocation().toString());
+                                    mc.player.playSound(soundEvent, 1.0F, 1.0F);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             });
             ctx.get().setPacketHandled(true);
-        }
-    }
-
-    @Mod.EventBusSubscriber(modid = BF1Q.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class Registration
-    {
-        @SubscribeEvent
-        public static void onCommonSetup(FMLCommonSetupEvent event)
-        {
-            NetworkHandler.register();
         }
     }
 }
